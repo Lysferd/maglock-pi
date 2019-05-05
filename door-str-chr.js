@@ -11,10 +11,12 @@ var DoorSTRCharacteristic = function(service, initial_value) {
     value: null
   });
 
-  this._value = initial_value;
+  this._value = 1;
   this.service = service;
   this.timeout = null;
-  this.led = new Gpio(14, 'out');
+  this.relay = new Gpio(3, 'out');
+  this.relay.writeSync(this._value);
+  this.led = new Gpio(7, 'out');
   this.led.writeSync(this._value);
 };
 
@@ -32,7 +34,9 @@ DoorSTRCharacteristic.prototype.unlock = function() {
   DDB.log('Door unlocked', 'event');
 
   this._value = 0;
+  this.relay.writeSync(0);
   this.led.writeSync(0);
+  clearTimeout(this.timeout);
   this.timeout = setTimeout(this.lock, 5000, this);
 };
 
@@ -44,6 +48,7 @@ DoorSTRCharacteristic.prototype.lock = function(ref) {
   // Hack to work with timeout:
   if (typeof ref === 'undefined') ref = this
   ref._value = 1;
+  ref.relay.writeSync(1);
   ref.led.writeSync(1);
   clearTimeout(ref.timeout);
 };

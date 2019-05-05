@@ -1,5 +1,7 @@
 
 const AWS = require('aws-sdk');
+AWS.config.update( { region: 'us-east-1' } );
+
 const DDB = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 const TableName = 'maglock-door-';
 const GetMAC = require('getmac');
@@ -55,10 +57,14 @@ getUUID(function(uuid) {
         if (err) {
           console.log('[DDB Error]: putItem ', err);
         } else {
-          console.log('[DDB Success]: putItem ', data);
+          //console.log('[DDB Success]: putItem ', data);
         }
       });
     });
+  };
+
+  DDB.uuid = function() {
+    return uuid;
   };
 });
 

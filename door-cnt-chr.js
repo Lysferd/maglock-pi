@@ -6,7 +6,7 @@ var Gpio = require('onoff').Gpio;
 var Descriptor = bleno.Descriptor;
 var Characteristic = bleno.Characteristic;
 
-var contact_input = new Gpio(4, 'in', 'both');
+var contact_input = new Gpio(2, 'in', 'both', {debounceTimeout: 500});
 var contact_state = contact_input.readSync();
 var updateCallback = null;
 var door_service;
@@ -51,8 +51,8 @@ contact_input.watch((err, value) => {
     throw err
   }
 
-  if (value) door_service.doorClosed()
-  else door_service.doorOpened()
+  if (value) door_service.doorOpened()
+  else door_service.doorClosed()
 
   contact_state = value;
   var data = Buffer.from([value]);

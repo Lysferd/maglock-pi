@@ -9,15 +9,15 @@ const DDB = require('./aws-ddb');
 
 // GPIO
 const Gpio = require('onoff').Gpio;
-const connection_led = new Gpio(15, 'out');
-const advertising_led = new Gpio(18, 'out');
+const connection_led = new Gpio(12, 'out');
+const advertising_led = new Gpio(20, 'out');
 
 bleno.on('stateChange', function (state) {
 	console.log('on -> stateChange: ' + state);
   DDB.begin()
 
 	if (state === 'poweredOn') {
-    bleno.startAdvertising('MagDoor 1', ['3d22']);
+    bleno.startAdvertising('MagDoor 2', ['3d22']);
 	} else {
 		bleno.stopAdvertising();
 	}
