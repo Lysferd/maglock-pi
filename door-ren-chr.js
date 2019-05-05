@@ -21,12 +21,8 @@ util.inherits(DoorRENCharacteristic, Characteristic);
 
 DoorRENCharacteristic.prototype.onWriteRequest =
 function(data, offset, withoutResponse, callback) {
-  var octets = new Uint8Array(data);
-  var test = Buffer.from(data)
-  console.log('Request to enter from ID:', test);// + u8AToHexString(octets));
-
+  console.log('Request to enter from ID:', data.toString());
   door_service.requestToEnter(data);
-
   callback(this.RESULT_SUCCESS);
 };
 

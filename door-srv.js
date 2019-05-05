@@ -19,6 +19,7 @@ var DoorService = function() {
     console.log('[DoorService Debug REX]');
     this.requestToEnter();
   });
+  this.requested = false;
 
   DoorService.super_.call(this, {
     uuid: '3d22744e-38df-4a2d-bb2e-80f582f78784',
@@ -32,10 +33,11 @@ var DoorService = function() {
 
 DoorService.prototype.requestToEnter = function(data) {
   if (typeof data === 'undefined')
-    DDB.log('Request to enter received from button', 'event');
+    DDB.log('Request to enter received from button', 'event')
   else
-    DDB.log(`Request to enter for ID ${data} received`, 'event');
+    DDB.log(`Request to enter for ID ${data.toString()} received`, 'event')
 
+  this.requested = true;
   this.strike_characteristic.unlock();
 };
 
@@ -52,11 +54,12 @@ DoorService.prototype.doorOpened = function() {
 };
 
 DoorService.prototype.doorClosed = function() {
-  if (this.strike_characteristic._value == 1) {
+  if (this.requested == false) {
     console.log('[DoorService Door Forced Restored]');
     DDB.log('Door forced open restored', 'event');
   }
   else {
+    this.requested == false;
     console.log('[DoorService Door Closed]');
     DDB.log('Door closed', 'event');
   }
