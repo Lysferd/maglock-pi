@@ -6,13 +6,13 @@ var Gpio = require('onoff').Gpio;
 var Descriptor = bleno.Descriptor;
 var Characteristic = bleno.Characteristic;
 
-var contact_input = new Gpio(2, 'in', 'both', {debounceTimeout: 500});
+var contact_input = new Gpio(2, 'in', 'both', {debounceTimeout: 300});
 var contact_state = contact_input.readSync();
 var updateCallback = null;
 var door_service;
 
-var DoorCNTCharacteristic = function(service) {
-  DoorCNTCharacteristic.super_.call(this, {
+var DoorContactCharacteristic = function(service) {
+  DoorContactCharacteristic.super_.call(this, {
     uuid: 'e53a7a22-0850-48e5-9f25-5864e71eb00a',
     properties: [ 'read', 'notify' ],
     value: null
@@ -22,32 +22,32 @@ var DoorCNTCharacteristic = function(service) {
   door_service = service;
 };
 
-util.inherits(DoorCNTCharacteristic, Characteristic);
+util.inherits(DoorContactCharacteristic, Characteristic);
 
-DoorCNTCharacteristic.prototype.onReadRequest =
+DoorContactCharacteristic.prototype.onReadRequest =
   function(offset, callback) {
     var value = Buffer.from([contact_state]);
-    console.log('[DoorCNTCharacteristic READ]:', value);
+    console.log('[DoorContactCharacteristic READ]:', value);
     callback(this.RESULT_SUCCESS, value);
   };
 
-DoorCNTCharacteristic.prototype.onSubscribe =
+DoorContactCharacteristic.prototype.onSubscribe =
   function(maxValueSize, updateValueCallback) {
-    console.log('[DoorCNTCharacteristic Subscribe]:', maxValueSize, updateValueCallback);
+    console.log('[DoorContactCharacteristic Subscribe]:', maxValueSize, updateValueCallback);
     updateCallback = updateValueCallback;
   };
 
-DoorCNTCharacteristic.prototype.onUnsubscribe =
+DoorContactCharacteristic.prototype.onUnsubscribe =
   function() {
-    console.log('[DoorCNTCharacteristic Unsubscribe]');
+    console.log('[DoorContactCharacteristic Unsubscribe]');
     updateCallback = null;
   };
 
-module.exports = DoorCNTCharacteristic;
+module.exports = DoorContactCharacteristic;
 
 contact_input.watch((err, value) => {
   if (err) {
-    console.log('[DoorCNTCharacteristic Error]:', err);
+    console.log('[DoorContactCharacteristic Error]:', err);
     throw err
   }
 
@@ -56,10 +56,10 @@ contact_input.watch((err, value) => {
 
   contact_state = value;
   var data = Buffer.from([value]);
-  console.log('[DoorCNTCharacteristic Update]:', value, data);
+  console.log('[DoorContactCharacteristic Update]:', value, data);
 
   if (updateCallback) {
-    console.log('[DoorCNTCharacteristic Notify]:', data);
+    console.log('[DoorContactCharacteristic Notify]:', data);
     updateCallback(data);
   }
 });

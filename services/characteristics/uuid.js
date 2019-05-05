@@ -1,7 +1,7 @@
 
 const util = require('util');
 const bleno = require('bleno');
-const DDB = require('./aws-ddb');
+const DDB = require('../../aws-ddb');
 
 var HardwareSerialNumberCharacteristic = function() {
   HardwareSerialNumberCharacteristic.super_.call(this, {

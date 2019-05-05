@@ -2,7 +2,7 @@
 const util = require('util');
 const bleno = require('bleno');
 
-const HardwareSerialNumberCharacteristic = require('./hwd-sn-chr');
+const HardwareSerialNumberCharacteristic = require('./characteristics/uuid');
 
 var HardwareService = function() {
   HardwareService.super_.call(this, {
