@@ -1,8 +1,8 @@
 
 // Bluetooth
 const bleno = require('bleno');
-const DoorService = require('./door-srv');
-const HardwareService = require('./hwd-srv');
+const DoorService = require('./services/door');
+const HardwareService = require('./services/hardware');
 
 // AWS
 const DDB = require('./aws-ddb');

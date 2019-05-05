@@ -1,12 +1,13 @@
 
 const util = require('util');
 const bleno = require('bleno');
+const DDB = require('../../aws-ddb');
 
 var HardwareSerialNumberCharacteristic = function() {
   HardwareSerialNumberCharacteristic.super_.call(this, {
     uuid: '2a25',
     properties: [ 'read' ],
-    value: Buffer.from('maglock-door-b827eb4ff16c'),
+    value: Buffer.from(DDB.uuid()),
     descriptors: [
       new bleno.Descriptor({
         uuid: '2901',

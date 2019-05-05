@@ -8,8 +8,8 @@ var Characteristic = bleno.Characteristic;
 // Primary service instance reference
 var door_service;
 
-var DoorRENCharacteristic = function(srv) {
-  DoorRENCharacteristic.super_.call(this, {
+var DoorRequestCharacteristic = function(srv) {
+  DoorRequestCharacteristic.super_.call(this, {
     uuid: '8f3625e6-5f63-4bf8-872b-8786a911b620',
     properties: [ 'writeWithoutResponse' ]
   });
@@ -17,14 +17,17 @@ var DoorRENCharacteristic = function(srv) {
   door_service = srv;
 };
 
-util.inherits(DoorRENCharacteristic, Characteristic);
+util.inherits(DoorRequestCharacteristic, Characteristic);
 
-DoorRENCharacteristic.prototype.onWriteRequest =
+DoorRequestCharacteristic.prototype.onWriteRequest =
 function(data, offset, withoutResponse, callback) {
-  console.log('Request to enter from ID:', data.toString());
+  var test = Buffer.from(data);
+  console.log('Request to enter from ID:', test);
+
   door_service.requestToEnter(data);
+
   callback(this.RESULT_SUCCESS);
 };
 
-module.exports = DoorRENCharacteristic;
+module.exports = DoorRequestCharacteristic;
 

@@ -1,33 +1,32 @@
 
 const util = require('util');
 const bleno = require('bleno');
-const DDB = require('./aws-ddb');
+const DDB = require('../aws-ddb');
 
 const Gpio = require('onoff').Gpio;
 
-const DoorRENCharacteristic = require('./door-ren-chr');
-const DoorSTRCharacteristic = require('./door-str-chr');
-const DoorCNTCharacteristic = require('./door-cnt-chr');
+const DoorRequestCharacteristic = require('./characteristics/request');
+const DoorStrikeCharacteristic = require('./characteristics/strike');
+const DoorContactCharacteristic = require('./characteristics/contact');
 
 var DoorService = function() {
-  this.ren_characteristic = new DoorRENCharacteristic(this);
-  this.contact_characteristic = new DoorCNTCharacteristic(this);
-  this.strike_characteristic = new DoorSTRCharacteristic(this, this.contact_characteristic._value);
+  this.request = new DoorRequestCharacteristic(this);
+  this.contact = new DoorContactCharacteristic(this);
+  this.strike = new DoorStrikeCharacteristic(this);
+
   this.rex = new Gpio(3, 'in', 'falling');
   this.rex.watch((err, value) => {
     if (err) throw err
     console.log('[DoorService Debug REX]');
     this.requestToEnter();
   });
+
+  this.timeout - null;
   this.requested = false;
 
   DoorService.super_.call(this, {
     uuid: '3d22744e-38df-4a2d-bb2e-80f582f78784',
-    characteristics: [
-      this.ren_characteristic,
-      this.strike_characteristic,
-      this.contact_characteristic
-    ]
+    characteristics: [ this.request, this.strike, this.contact ]
   });
 };
 
@@ -35,36 +34,45 @@ DoorService.prototype.requestToEnter = function(data) {
   if (typeof data === 'undefined')
     DDB.log('Request to enter received from button', 'event')
   else
-    DDB.log(`Request to enter for ID ${data.toString()} received`, 'event')
+    DDB.log(`Request to enter for ID ${data} received`, 'event')
 
   this.requested = true;
-  this.strike_characteristic.unlock();
+  this.strike.unlock();
 };
 
 DoorService.prototype.doorOpened = function() {
-  if (this.strike_characteristic._value == 1) {
-    console.log('[DoorService Door Forced Open]');
-    DDB.log('Door forced open', 'alarm');
+  if (this.requested == false) {
+    this.alarm();
   }
   else {
     console.log('[DoorService Door Opened]: Locking door');
     DDB.log('Door opened', 'event');
-    this.strike_characteristic.lock();
+    this.timeout = setTimeout(this.alarm, 75000, this);
+    this.strike.lock();
   }
 };
 
 DoorService.prototype.doorClosed = function() {
+  clearTimeout(this.timeout);
   if (this.requested == false) {
     console.log('[DoorService Door Forced Restored]');
     DDB.log('Door forced open restored', 'event');
   }
   else {
-    this.requested == false;
+    this.requested = false;
     console.log('[DoorService Door Closed]');
     DDB.log('Door closed', 'event');
   }
 };
 
+DoorService.prototype.alarm = function(ref) {
+  console.log('[DoorService Door Forced Open]');
+
+  if (typeof ref === 'undefined') ref = this
+  clearTimeout(ref.timeout);
+
+  DDB.log('Door forced open', 'alarm');
+};
 
 util.inherits(DoorService, bleno.PrimaryService);
 
